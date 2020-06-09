@@ -3,36 +3,63 @@ using System.Diagnostics;
 
 namespace TaskbarTimer
 {
+    //***************************************************************************
+    // Controller
+    //***************************************************************************
+
     public class Controller
     {
         /*
-         * This class controls communication between form UI and data objects
+         * This class controls communication between Form UI and data objects
          */
-        TimerForm form;
-        List<int> timerIdCache;
+        forms.TimerForm Form;
+        Timers Timers;
+        List<int> TimerIdCache = new List<int>(); // for timer ordering in UI
+
+        //-------------------------------------------------------------
 
         public Controller()
         {
-            this.form = new TimerForm();
+            // init ui and timer container
+            this.Form = new forms.TimerForm();
+            Timers = new Timers();
         }
+
+        //-------------------------------------------------------------
 
         public void UndisposeForm()
         {
-            if (this.form.IsDisposed)
+            if (this.Form.IsDisposed)
             {
-                // When user manually closes form, recreate
-                this.form = new TimerForm();
+                // When user manually closes Form, recreate
+                this.Form = new forms.TimerForm();
             }
         }
 
+        //-------------------------------------------------------------
+
         public void MakeFormVisible()
         {
-            if (this.form.Visible == false)
+            if (this.Form.Visible == false)
             {
-                Debug.WriteLine("LeftClick");
-                this.form.Visible = true;
-                this.form.Show();
+                this.Form.Visible = true;
+                this.Form.Show();
             }
+        }
+
+        //-------------------------------------------------------------
+
+        public void RecacheIds()
+        {
+            var tempList = Timers.GetTimerIds();
+            foreach (int id in tempList)
+            {
+                if (!this.TimerIdCache.Contains(id))
+                {
+                    TimerIdCache.Add(id);
+                }
+            }
+            // TODO: Add refresh UI
         }
     }
 

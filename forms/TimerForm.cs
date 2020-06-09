@@ -9,13 +9,18 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace TaskbarTimer
+namespace TaskbarTimer.forms
 {
+    //***************************************************************************
+    // TimerForm
+    //***************************************************************************
+
     public partial class TimerForm : Form
     {
-        readonly int width = 400;
-        readonly int height = 400;
-        Timer focusTimer;
+        readonly int DesiredWidth = 400;
+        readonly int DesiredHeight = 600;
+
+        //-------------------------------------------------------------
 
         public TimerForm()
         {
@@ -25,45 +30,60 @@ namespace TaskbarTimer
             Text = "Congrats, you opened a form";
         }
 
+        //-------------------------------------------------------------
+
         private void Setup()
         {
             this.ShowInTaskbar = false;
             this.MinimizeBox = false;
             this.MaximizeBox = false;
+            this.TopMost = true;
+
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximumSize = new Size(width, height);
-            this.MinimumSize = new Size(width, height);
-            this.Size = new Size(width, height);
+            this.MaximumSize = new Size(DesiredWidth, DesiredHeight);
+            this.MinimumSize = new Size(DesiredWidth, DesiredHeight);
+            this.Size = new Size(DesiredWidth, DesiredHeight);
 
             // Set window location to bottom right of screen
+            // FUTURE: Detect where notification area is and position accordingly
             System.Drawing.Rectangle screenRect = Screen.PrimaryScreen.WorkingArea;
-            int xLocation = (screenRect.Width - this.width);
-            int yLocation = (screenRect.Height - this.height);
+            int xLocation = (screenRect.Width - this.DesiredWidth);
+            int yLocation = (screenRect.Height - this.DesiredHeight);
             this.StartPosition = FormStartPosition.Manual;
             this.Location = new Point(xLocation, yLocation);
 
-            // Timer needed to hack force focus on open
-            focusTimer = new Timer();
-            focusTimer.Tick += new EventHandler(OnTick);
-            focusTimer.Interval = 100;
+            //temp
+            TimerList.ItemHeight = 60;
+            this.TimerList.Items.Add(new object());
+            this.TimerList.Items.Add(new object());
+            this.TimerList.Items.Add(new object());
+            this.TimerList.Items.Add(new object());
+            this.TimerList.Items.Add(new object());
+            this.TimerList.Items.Add(new object());
+            this.TimerList.Items.Add(new object());
+            this.TimerList.Items.Add(new object());
+            TimerList.DrawMode = DrawMode.OwnerDrawFixed;
+            TimerList.DrawItem += new DrawItemEventHandler(DrawItem);
         }
 
-        protected override void OnLostFocus(EventArgs e)
+        //-------------------------------------------------------------
+
+        protected override void OnDeactivate(EventArgs e)
         {
-            this.Visible = false;
-            focusTimer.Stop();
+            this.Hide();
         }
 
-        protected override void OnGotFocus(EventArgs e)
-        {
-            this.TopMost = true;
-            focusTimer.Start();
-        }
+        //-------------------------------------------------------------
 
-        private void OnTick(object sender, EventArgs e)
+        private void DrawItem(object sender, System.Windows.Forms.DrawItemEventArgs e)
         {
-            // Sometimes opens without focus despite Focused being True, so hack a force focus
-            this.Activate();
+            e.DrawBackground();
+
+            ClockDrawer drawer = new ClockDrawer(e.Graphics, e.Bounds);
+            drawer.DrawFace();
+
+            e.DrawFocusRectangle();
         }
     }
 }
+
